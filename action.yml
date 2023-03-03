@@ -1,0 +1,25 @@
+name: Jira Issue Info
+description: Get properties of a Jira issue and make it available to other workflow steps.
+author: frieder
+branding:
+  icon: list
+  color: black
+inputs:
+  retries:
+    description: The number of retries to connect to the Jira API before considered failed.
+    required: false
+    default: 1
+  retryDelay:
+    description: The time in seconds to wait in between connection attempts.
+    required: false
+    default: 10
+  timeout:
+    description: The time in milliseconds in which a request must finish or otherwise considered failed.
+    required: false
+    default: 2000
+  issue:
+    description: The ID of the Jira issue.
+    required: true
+runs:
+  using: node16
+  main: ./dist/index.js
