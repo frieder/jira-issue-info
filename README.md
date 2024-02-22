@@ -37,7 +37,7 @@ jobs:
           retries: 1 # optional
           retryDelay: 10 # optional
           timeout: 2000 # optional
-          issue: XYZ-123
+          issue: WEB-123
 
       - name: Print Output
         run: echo '${{ steps.issue.outputs.json }}'
@@ -158,4 +158,19 @@ To access any of the fields in later steps one can use the `fromJSON` function a
 workflows. Following is an example how to access the name of the assignee (ID of the info step is `foo`).
 ```
   fromJSON(steps.foo.outputs.json).fields.assignee.displayName
+```
+
+## Test Action
+
+This action can be tested during development with the use of https://github.com/nektos/act.
+
+Please adapt the values accordingly both in the workflow file and in the CLI command.
+
+```
+act -W .github/workflows/testing.yml \
+    -j test \
+    -s JIRA_URL=*** \
+    -s JIRA_EMAIL=*** \
+    -s JIRA_TOKEN=*** \
+    --var JIRA_ISSUE=WEB-123
 ```
