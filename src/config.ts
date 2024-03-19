@@ -1,4 +1,4 @@
-import { ActionInputs, JiraLogin } from "./types";
+import { ActionInputs, CustomField, JiraLogin } from "./types";
 import * as core from "@actions/core";
 import * as fs from "fs";
 import * as YAML from "yaml";
@@ -18,6 +18,7 @@ export function getInputs(): ActionInputs {
         retryDelay: _getNumber("retryDelay", 10),
         timeout: _getNumber("timeout", 2000),
         issue: core.getInput("issue", { required: false }),
+        customFields: _getCustomFields(),
     };
 
     if (!inputs.issue || inputs.issue.length === 0) {
@@ -40,5 +41,19 @@ function _getNumber(name: string, defaultValue: number): number {
     if (!value || value.length === 0) {
         return defaultValue;
     }
-    return value.match(/^\d+$/) ? Number(value) : defaultValue;
+    return /^\d+$/.exec(value) ? Number(value) : defaultValue;
+}
+
+function _getCustomFields(): CustomField[] {
+    const fieldsRaw = core.getMultilineInput("customFields", { required: false });
+
+    return fieldsRaw
+        .filter((line) => line.trim() !== "" && line.includes(":"))
+        .map((line) => {
+            const parts = line.split(":");
+            return {
+                id: parts[1].trim(),
+                outputID: parts[0].trim(),
+            } as CustomField;
+        });
 }

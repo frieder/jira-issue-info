@@ -38,16 +38,37 @@ jobs:
           retryDelay: 10 # optional
           timeout: 2000 # optional
           issue: WEB-123
+          customFields: |
+            previousStatus: 10858
+            transitionStatus: 10859
 
       - name: Print Output
-        run: echo '${{ steps.issue.outputs.json }}'
+        run: |
+          echo "Issue = ${{ steps.issue.outputs.issue }}"
+          echo "Summary = ${{ steps.issue.outputs.summary }}"
+          echo "Description = ${{ steps.issue.outputs.description }}"
+          echo "Type = ${{ steps.issue.outputs.type }}"
+          echo "Type ID = ${{ steps.issue.outputs.typeID }}"
+          echo "Status = ${{ steps.issue.outputs.status }}"
+          echo "Status ID = ${{ steps.issue.outputs.statusID }}"
+          echo "Priority = ${{ steps.issue.outputs.priority }}"
+          echo "Priority ID = ${{ steps.issue.outputs.priorityID }}"
+          echo "Labels = ${{ steps.issue.outputs.labels }}"
+          echo "Reporter Name = ${{ steps.issue.outputs.reporter }}"
+          echo "Reporter ID = ${{ steps.issue.outputs.reporterID }}"
+          echo "Assignee Name = ${{ steps.issue.outputs.assignee }}"
+          echo "Assignee ID = ${{ steps.issue.outputs.assigneeID }}"
+          echo "Components = ${{ steps.issue.outputs.components }}"
+          echo "Previous Status = ${{ steps.issue.outputs.previousStatus }}"
+          echo "Transition Status = ${{ steps.issue.outputs.transitionStatus }}"
+          echo 'JSON = ${{ steps.issue.outputs.json }}'
 
       - name: Issue status is "To Do"
-        if: fromJSON(steps.issue.outputs.json).fields.status.name == 'To Do'
+        if: steps.issue.outputs.status == 'To Do'
         run: echo "Ticket is in 'To Do'"
 
       - name: Issue status is "In Progress"
-        if: fromJSON(steps.issue.outputs.json).fields.status.name == 'In Progress'
+        if: steps.issue.outputs.status == 'In Progress'
         run: echo "Ticket is 'In Progress'"
 ```
 
@@ -92,79 +113,43 @@ time it will be considered failed.
 
 The ID of the Jira ticket (e.g. XYZ-123).
 
+### Option: customFields
+
+|          |    |
+| :------- |:---|
+| Required | no |
+| Default  |    |
+
+A multiline string of custom fields that defines which values should be made available as output.
+The format is `<output name>: <field ID>`. The field ID defines the number of the custom field 
+in Jira. The output name is the name used to register the custom field's value as output.
+
 # Response Output
 
-The response of the request is made available to other steps as an output with name `json`
-(`steps.STEP-ID.outputs.json`). Below you
-can find an (incomplete) excerpt of the JSON response provided by the Jira
-[REST API](https://developer.atlassian.com/cloud/jira/platform/rest/v3/api-group-issues/#api-rest-api-3-issue-issueidorkey-get).
+The action will provide the following outputs:
 
-```json
-{
-    "id": "10001",
-    "fields": {
-        "assignee": {
-            "accountId": "some UUID or hash here",
-            "emailAddress": "foo@bar.local",
-            "displayName": "Foo Bar"
-        },
-        "components": [
-            {
-                "id": "10001",
-                "name": "Component 1"
-            }
-        ],
-        "created": "2023-02-28T00:23:59.489+0000",
-        "customfield_12345": "some value",
-        "description": {
-            "content": [
-                {
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": "Actual ticket description here"
-                        }
-                    ]
-                }
-            ]
-        },
-        "duedate": null,
-        "issuetype": {
-            "id": "10004",
-            "name": "Task",
-            "subtask": false
-        },
-        "labels": ["foo", "bar"],
-        "priority": {
-            "id": "1",
-            "name": "Highest"
-        },
-        "project": {
-            "id": "10001",
-            "key": "TEST",
-            "name": "Test Project"
-        },
-        "resolution": null,
-        "status": {
-            "id": "3",
-            "name": "In Progress"
-        },
-        "summary": "Test Ticket"
-    }
-}
-```
-
-To access any of the fields in later steps one can use the `fromJSON` function available in Github
-workflows. Following is an example how to access the name of the assignee (ID of the info step is `foo`).
-```
-  fromJSON(steps.foo.outputs.json).fields.assignee.displayName
-```
+- `issue`: The issue key (e.g. XYZ-123).
+- `summary`: The summary of the issue.
+- `description`: The description of the issue.
+- `type`: The type of the issue.
+- `typeID`: The ID of the type of the issue.
+- `status`: The status of the issue.
+- `statusID`: The ID of the status of the issue.
+- `priority`: The priority of the issue.
+- `priorityID`: The ID of the priority of the issue.
+- `labels`: The labels of the issue.
+- `reporter`: The name of the reporter of the issue.
+- `reporterID`: The ID of the reporter of the issue.
+- `assignee`: The name of the assignee of the issue.
+- `assigneeID`: The ID of the assignee of the issue.
+- `components`: The components of the issue.
+- `json`: The JSON response of the Jira REST API.
 
 ## Test Action
 
 This action can be tested during development with the use of https://github.com/nektos/act.
 
-Please adapt the values accordingly both in the workflow file and in the CLI command.
+Please adapt the values accordingly, both in the workflow file and in the CLI command.
 
 ```
 act -W .github/workflows/testing.yml \
