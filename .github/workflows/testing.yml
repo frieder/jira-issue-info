@@ -30,14 +30,35 @@ jobs:
           retryDelay: 10
           timeout: 2000
           issue: ${{ vars.JIRA_ISSUE }}
+          customFields: |
+            previousStatus: 10858
+            transitionStatus: 10859
 
       - name: Print Output
-        run: echo '${{ steps.issue.outputs.json }}'
+        run: |
+          echo "Issue = ${{ steps.issue.outputs.issue }}"
+          echo "Summary = ${{ steps.issue.outputs.summary }}"
+          echo "Description = ${{ steps.issue.outputs.description }}"
+          echo "Type = ${{ steps.issue.outputs.type }}"
+          echo "Type ID = ${{ steps.issue.outputs.typeID }}"
+          echo "Status = ${{ steps.issue.outputs.status }}"
+          echo "Status ID = ${{ steps.issue.outputs.statusID }}"
+          echo "Priority = ${{ steps.issue.outputs.priority }}"
+          echo "Priority ID = ${{ steps.issue.outputs.priorityID }}"
+          echo "Labels = ${{ steps.issue.outputs.labels }}"
+          echo "Reporter Name = ${{ steps.issue.outputs.reporter }}"
+          echo "Reporter ID = ${{ steps.issue.outputs.reporterID }}"
+          echo "Assignee Name = ${{ steps.issue.outputs.assignee }}"
+          echo "Assignee ID = ${{ steps.issue.outputs.assigneeID }}"
+          echo "Components = ${{ steps.issue.outputs.components }}"
+          echo "Previous Status = ${{ steps.issue.outputs.previousStatus }}"
+          echo "Transition Status = ${{ steps.issue.outputs.transitionStatus }}"
+          echo 'JSON = ${{ steps.issue.outputs.json }}'
 
       - name: Issue status is "To Do"
-        if: fromJSON(steps.issue.outputs.json).fields.status.name == 'To Do'
+        if: steps.issue.outputs.status == 'To Do'
         run: echo "Ticket is in 'To Do'"
 
       - name: Issue status is "In Progress"
-        if: fromJSON(steps.issue.outputs.json).fields.status.name == 'In Progress'
+        if: steps.issue.outputs.status == 'In Progress'
         run: echo "Ticket is 'In Progress'"

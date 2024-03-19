@@ -1,13 +1,13 @@
+import * as core from "@actions/core";
 import { ActionInputs, JiraLogin } from "./types";
-import axios, { AxiosInstance } from "axios";
+import axios, { AxiosError, AxiosInstance } from "axios";
 import axiosRetry from "axios-retry";
 
 export async function sendRequest(jira: JiraLogin, inputs: ActionInputs): Promise<any> {
     const httpClient = _createHTTPClient(jira, inputs);
     _setRetrySettings(httpClient, inputs);
 
-    const { data } = await httpClient.get(`/rest/api/3/issue/${inputs.issue}`);
-    return data;
+    return await httpClient.get(`/rest/api/3/issue/${inputs.issue}`);
 }
 
 function _createHTTPClient(jira: JiraLogin, inputs: ActionInputs): AxiosInstance {
@@ -26,13 +26,20 @@ function _createHTTPClient(jira: JiraLogin, inputs: ActionInputs): AxiosInstance
 }
 
 function _setRetrySettings(httpClient: AxiosInstance, inputs: ActionInputs) {
+    const retryCondition = (error: AxiosError): boolean => {
+        return (
+            axiosRetry.isNetworkOrIdempotentRequestError(error) ||
+            (error.response !== undefined && ![200].includes(error.response.status))
+        );
+    };
+
     axiosRetry(httpClient, {
         retries: inputs.retries,
-        retryCondition: () => true,
+        retryCondition: retryCondition,
         retryDelay: () => inputs.retryDelay * 1000,
         shouldResetTimeout: true,
         onRetry: (retryCount, error) => {
-            console.log(
+            core.info(
                 `[${retryCount}/${inputs.retries}] Request failed with rc = ${error.response?.status}, wait for ${inputs.retryDelay} seconds and try again`
             );
         },

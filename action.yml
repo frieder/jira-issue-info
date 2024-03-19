@@ -20,6 +20,9 @@ inputs:
   issue:
     description: The ID of the Jira issue.
     required: true
+  customFields:
+    description: A multiline string of custom fields along with an ID with which the field's value should be registered for output.
+    required: false
 runs:
   using: node20
   main: ./dist/index.js
