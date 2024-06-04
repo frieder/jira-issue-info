@@ -1,5 +1,5 @@
 name: Jira Issue Info
-description: Get properties of a Jira issue and make it available to other workflow steps.
+description: Get properties of a Jira issue.
 author: frieder
 branding:
   icon: list
