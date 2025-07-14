@@ -38,8 +38,6 @@ function _setOutput(json: any, inputs: ActionInputs) {
 }
 
 function _addCustomFieldsToOutput(json: any, fields: CustomField[]) {
-    core.error("LEN = " + fields.length);
-
     if (fields.length === 0) return;
 
     fields.forEach((field) => {
